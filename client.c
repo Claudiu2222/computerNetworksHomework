@@ -8,9 +8,10 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
+#include<signal.h>
 void createFifo()
 {
-    if (access("fifoFile.txt", F_OK) == -1) // childToParent
+    if (access("fifoFile.txt", F_OK) == -1) 
     {
         write(1, "#FIFO CREATED#\n", 15);
         if (mkfifo("fifoFile.txt", 0666) == -1)
@@ -20,7 +21,7 @@ void createFifo()
         }
     }
 }
-void terminateString(char *buf)
+void addNullChar(char *buf)
 {
     int i = 1;
     int num;
@@ -31,7 +32,7 @@ void terminateString(char *buf)
     {
         num = 0;
         pow = 1;
-        while (isdigit(buf[i]) != 0 && (buf[i - 1] == '(' || buf[i - 2] == '(') && (buf[i + 1] == ')' || buf[i + 2] == ')'))
+        while (isdigit(buf[i]) != 0 && (buf[i - 1] == '(' || buf[i - 2] == '(' || buf[i - 3] == '(') && (buf[i + 1] == ')' || buf[i + 2] == ')' || buf[i + 3] ==')'))
         {
             num = num * pow + (buf[i] - '0');
             i++;
@@ -55,6 +56,7 @@ void terminateString(char *buf)
 
     buf[maxPos + 5 * pairsOfParantheses] = '\0';
 }
+
 int main(void)
 {
     createFifo();
@@ -67,6 +69,7 @@ int main(void)
     {
         write(1, "\n", 1);
 
+        
         len = read(0, buf, 1024);
         if(len==-1)
         {
@@ -98,10 +101,9 @@ int main(void)
             perror("Err read:");
             exit(1);
         }
-
         close(fd);
 
-        terminateString(buf);
+        addNullChar(buf);
 
         write(1, "\n", 1);
         if(write(1, buf, strlen(buf))==-1)

@@ -74,10 +74,10 @@ void prefixOutput(char *output, char *prefixedOutput)
     // write(1,prefixedOutput,strlen(prefixedOutput));
     prefixedOutput[strlen(prefixedOutput)] = '\0';
 }
-void prepareOutput(char *message, char *prefixedMessage, char *messageToPrint)
+void prepareOutput(char *message, char *prefixedMessage, char *messageToBePrinted)
 {
     strcpy(prefixedMessage, "");
-    strcpy(message, messageToPrint);
+    strcpy(message, messageToBePrinted);
     prefixOutput(message, prefixedMessage);
 }
 
@@ -308,7 +308,7 @@ void getProcInfo(int writeFd, char *pid, int substringAfterColonCount)
         strcpy(pid, pid + 14);
         strcat(path, pid);
         strcat(path, "/status");
-        printf("\n%s\n", path);
+        //printf("\n%s\n", path);
         if ((fp = fopen(path, "r")) == NULL)
             write(writeFd, "INVALIDPID", 10);
         while (fgets(buf, 256, fp))
