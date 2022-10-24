@@ -8,10 +8,10 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
-#include<signal.h>
+#include <signal.h>
 void createFifo()
 {
-    if (access("fifoFile.txt", F_OK) == -1) 
+    if (access("fifoFile.txt", F_OK) == -1)
     {
         write(1, "#FIFO CREATED#\n", 15);
         if (mkfifo("fifoFile.txt", 0666) == -1)
@@ -32,7 +32,7 @@ void addNullChar(char *buf)
     {
         num = 0;
         pow = 1;
-        while (isdigit(buf[i]) != 0 && (buf[i - 1] == '(' || buf[i - 2] == '(' || buf[i - 3] == '(') && (buf[i + 1] == ')' || buf[i + 2] == ')' || buf[i + 3] ==')'))
+        while (isdigit(buf[i]) != 0 && (buf[i - 1] == '(' || buf[i - 2] == '(' || buf[i - 3] == '(') && (buf[i + 1] == ')' || buf[i + 2] == ')' || buf[i + 3] == ')'))
         {
             num = num * pow + (buf[i] - '0');
             i++;
@@ -56,64 +56,66 @@ void addNullChar(char *buf)
 
     buf[maxPos + 5 * pairsOfParantheses] = '\0';
 }
-
-int main(void)
+void startClientProcess()
 {
-    createFifo();
-    
     char buf[1024];
     int len;
     int fd;
+    createFifo();
+    write(1, "\n", 1);
+
+    len = read(0, buf, 1024);
+    if (len == -1)
+    {
+        perror("Err read:");
+        exit(1);
+    }
+    buf[len] = '\0';
+
+    if ((fd = open("fifoFile.txt", O_WRONLY)) == -1)
+    {
+        perror("Err open: ");
+        exit(1);
+    }
+
+    if (write(fd, buf, strlen(buf)) == -1)
+    {
+        perror("Err write");
+        exit(1);
+    }
+    close(fd);
+
+    if ((fd = open("fifoFile.txt", O_RDONLY)) == -1)
+    {
+        perror("Err open: ");
+        exit(1);
+    }
+    if (read(fd, buf, 1024) == -1)
+    {
+        perror("Err read:");
+        exit(1);
+    }
+    close(fd);
+
+    addNullChar(buf);
+
+    write(1, "\n", 1);
+    if (write(1, buf, strlen(buf)) == -1)
+    {
+        perror("Err write");
+        exit(1);
+    }
+
+    if (strstr(buf, "Quit") != 0)
+        exit(0);
+}
+int main(void)
+{
+
     write(1, "--------------\n|CLIENT START|\n--------------", 46);
     while (1)
     {
-        write(1, "\n", 1);
-
-        
-        len = read(0, buf, 1024);
-        if(len==-1)
-        {
-            perror("Err read:");
-            exit(1);
-        }
-        buf[len] = '\0';
-
-        if ((fd = open("fifoFile.txt", O_WRONLY)) == -1)
-        {
-            perror("Err open: ");
-            exit(1);
-        }
-
-        if(write(fd, buf, strlen(buf))==-1)
-        {
-            perror("Err write");
-            exit(1);
-        }
-        close(fd);
-
-        if ((fd = open("fifoFile.txt", O_RDONLY)) == -1)
-        {
-            perror("Err open: ");
-            exit(1);
-        }
-        if(read(fd, buf, 1024)==-1)
-        {
-            perror("Err read:");
-            exit(1);
-        }
-        close(fd);
-
-        addNullChar(buf);
-
-        write(1, "\n", 1);
-        if(write(1, buf, strlen(buf))==-1)
-        {
-            perror("Err write");
-            exit(1);
-        }
-
-        if (strstr(buf, "Quit") != 0)
-            exit(0);
+        startClientProcess();
     }
 
     return 0;
