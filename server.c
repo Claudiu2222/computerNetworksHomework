@@ -134,12 +134,11 @@ void printMessageToClient(char *message, int fd)
         prepareOutput(message, prefixedMessage, "Pid is invalid!\n");
     }
 
-    if(write(fd, prefixedMessage, strlen(prefixedMessage))==-1)
+    if (write(fd, prefixedMessage, strlen(prefixedMessage)) == -1)
     {
         perror("Err write:");
         exit(1);
     }
-    
 }
 
 void parentProcess(int readFd, int writeFd)
@@ -150,27 +149,28 @@ void parentProcess(int readFd, int writeFd)
 
     createFifo();
 
-    if((fd = open("fifoFile.txt", O_RDONLY))==-1){
+    if ((fd = open("fifoFile.txt", O_RDONLY)) == -1)
+    {
         perror("Err open:");
         exit(1);
     }
 
     readLength = read(fd, buf, 1024);
-    if(readLength==-1)
+    if (readLength == -1)
     {
         perror("Err read:");
         exit(1);
     }
     buf[readLength - 1] = '\0';
     close(fd);
-    if(write(writeFd, buf, readLength)==-1)
+    if (write(writeFd, buf, readLength) == -1)
     {
         perror("Err write:");
         exit(1);
     }
 
     readLength = read(readFd, buf, 1024);
-    if(readLength==-1)
+    if (readLength == -1)
     {
         perror("Err read:");
         exit(1);
@@ -181,7 +181,7 @@ void parentProcess(int readFd, int writeFd)
     write(1, buf, strlen(buf));
     printf("\n<--- MSG READ FROM CHILD --->\n");
 
-    if((fd = open("fifoFile.txt", O_WRONLY))==-1)
+    if ((fd = open("fifoFile.txt", O_WRONLY)) == -1)
     {
         perror("Err open:");
         exit(1);
@@ -191,7 +191,6 @@ void parentProcess(int readFd, int writeFd)
     close(fd);
     int status;
     wait(&status);
-  
 }
 
 int verifyIfUserExists(char *user)
@@ -242,7 +241,7 @@ int formatString(char *string, char *newString)
 }
 char *validateLoginCommand(char *user, int substringAfterColonCount)
 {
-    if (substringAfterColonCount > 1 || substringAfterColonCount==0)
+    if (substringAfterColonCount > 1 || substringAfterColonCount == 0)
         return "USERINVALID";
     strcpy(user, user + 6);
     if (verifyIfUserExists(user) == TRUE)
@@ -301,14 +300,14 @@ void getProcInfo(int writeFd, char *pid, int substringAfterColonCount)
     char buf[1024];
     char response[1024] = "";
 
-    if (substringAfterColonCount > 1 || substringAfterColonCount==0)
+    if (substringAfterColonCount > 1 || substringAfterColonCount == 0)
         write(writeFd, "INVALIDPID", 10);
     else
     {
         strcpy(pid, pid + 14);
         strcat(path, pid);
         strcat(path, "/status");
-        //printf("\n%s\n", path);
+        // printf("\n%s\n", path);
         if ((fp = fopen(path, "r")) == NULL)
             write(writeFd, "INVALIDPID", 10);
         while (fgets(buf, 256, fp))
@@ -329,7 +328,6 @@ void getProcInfo(int writeFd, char *pid, int substringAfterColonCount)
         write(writeFd, response, strlen(response));
         fclose(fp);
     }
- 
 }
 char *checkInputInfo(char *buf, int writeFd)
 {
@@ -372,8 +370,8 @@ void childProcess(int readFd, int writeFd)
 {
 
     char buf[1024];
-    int readLength = read(readFd, buf, 1024); 
-    if(readLength==-1)
+    int readLength = read(readFd, buf, 1024);
+    if (readLength == -1)
     {
         perror("Err read:");
         exit(1);

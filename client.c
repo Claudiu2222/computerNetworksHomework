@@ -40,12 +40,12 @@ void addNullChar(char *buf)
         }
         // printf("\nNum:%d\n", num);
         i = i + num + 1;
-        if (num > 0 && num < 999)
+        if (num > 0)
         {
             pairsOfParantheses++;
             maxPos += num;
         }
-        if (num != 0 && buf[i + 1] != '(')
+        if (num != 0 && buf[i + 1] != '(' || num != 0 && buf[i + 1] == '(' && isdigit(buf[i + 2]) == 0)
             break;
 
         // printf("\nbuf i:%c\n", buf[i + 1]);
